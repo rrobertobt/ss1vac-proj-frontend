@@ -54,7 +54,11 @@
         <div class="flex items-center gap-3">
           <div class="hidden sm:flex flex-col items-end leading-tight">
             <p class="text-sm font-medium">
-              {{ sessionUser?.name ?? "Usuario" }}
+              {{ sessionUser?.patient
+                ? sessionUser?.patient.firstName + " " + sessionUser?.patient.lastName
+                : sessionUser?.employee
+                ? sessionUser?.employee.firstName + " " + sessionUser?.employee.lastName
+                : "Usuario" }}
             </p>
             <div class="flex items-center gap-2">
               <span class="text-xs text-muted-foreground">
@@ -63,7 +67,7 @@
               <span
                 class="text-[0.7rem] px-2 py-0.5 rounded-full border bg-muted/40"
               >
-                {{ roleLabel }}
+                {{ sessionUser?.roleLabel }}
               </span>
             </div>
           </div>
@@ -73,7 +77,7 @@
             <NuxtLink to="/app/profile"> Perfil </NuxtLink>
           </Button>
 
-          <Button variant="destructive" size="sm" type="button" @click="logout">
+          <Button variant="destructive" size="sm" type="button" @click="sessionStore.logOut()">
             Salir
           </Button>
         </div>
@@ -118,7 +122,7 @@
 
           <p class="px-2 text-xs text-muted-foreground">
             Sesión:
-            <span class="font-medium text-foreground">{{ roleLabel }}</span>
+            <span class="font-medium text-foreground">{{ sessionUser?.roleLabel }}</span>
           </p>
         </div>
       </aside>
@@ -165,7 +169,7 @@
               <p
                 class="mt-2 text-[0.7rem] inline-flex px-2 py-0.5 rounded-full border bg-background"
               >
-                {{ roleLabel }}
+                {{ sessionUser?.roleLabel }}
               </p>
             </div>
 
@@ -198,7 +202,7 @@
                 class="flex-1"
                 variant="destructive"
                 type="button"
-                @click="logout"
+                @click="sessionStore.logOut()"
               >
                 Salir
               </Button>

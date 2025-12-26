@@ -76,11 +76,6 @@
                 </div>
               </div>
             </div>
-
-            <div class="flex gap-2">
-              <Button variant="outline" disabled> Editar (mock) </Button>
-              <Button disabled> Guardar cambios (mock) </Button>
-            </div>
           </div>
         </CardHeader>
 
@@ -170,46 +165,80 @@
               <div class="grid gap-4 md:grid-cols-2">
                 <Card class="border-border/60">
                   <CardHeader class="pb-2">
-                    <CardTitle class="text-sm">Datos de paciente</CardTitle>
+                    <CardTitle class="text-sm">Paciente</CardTitle>
                   </CardHeader>
                   <CardContent class="text-xs text-muted-foreground space-y-2">
                     <template v-if="user.patient">
-                      <p>
-                        <span class="font-medium text-foreground"
-                          >Disponible:</span
-                        >
-                        Sí
-                      </p>
-                      <pre
-                        class="text-[0.7rem] whitespace-pre-wrap rounded-md border bg-muted/30 p-3 overflow-auto"
-                        >{{ pretty(user.patient) }}</pre
-                      >
+                      <div class="grid grid-cols-2 gap-2">
+                        <div>
+                          <p class="text-muted-foreground">Nombre</p>
+                          <p class="font-medium text-foreground">
+                            {{ user.patient.firstName }}
+                            {{ user.patient.lastName }}
+                          </p>
+                        </div>
+                        <div>
+                          <p class="text-muted-foreground">Estado</p>
+                          <p class="font-medium text-foreground">
+                            {{ user.patient.status }}
+                          </p>
+                        </div>
+                        <div>
+                          <p class="text-muted-foreground">Teléfono</p>
+                          <p class="font-medium text-foreground">
+                            {{ user.patient.phone ?? "—" }}
+                          </p>
+                        </div>
+                        <div>
+                          <p class="text-muted-foreground">Fecha nacimiento</p>
+                          <p class="font-medium text-foreground">
+                            {{ patient.dob ?? "—" }}
+                          </p>
+                        </div>
+                      </div>
                     </template>
                     <template v-else>
-                      <p>No aplica</p>
+                      <p>No aplica / no disponible en sesión.</p>
                     </template>
                   </CardContent>
                 </Card>
 
                 <Card class="border-border/60">
                   <CardHeader class="pb-2">
-                    <CardTitle class="text-sm">Datos de empleado</CardTitle>
+                    <CardTitle class="text-sm">Empleado</CardTitle>
                   </CardHeader>
                   <CardContent class="text-xs text-muted-foreground space-y-2">
                     <template v-if="user.employee">
-                      <p>
-                        <span class="font-medium text-foreground"
-                          >Disponible:</span
-                        >
-                        Sí
-                      </p>
-                      <pre
-                        class="text-[0.7rem] whitespace-pre-wrap rounded-md border bg-muted/30 p-3 overflow-auto"
-                        >{{ pretty(user.employee) }}</pre
-                      >
+                      <div class="grid grid-cols-2 gap-2">
+                        <div>
+                          <p class="text-muted-foreground">Nombre</p>
+                          <p class="font-medium text-foreground">
+                            {{ user.employee.firstName }}
+                            {{ user.employee.lastName }}
+                          </p>
+                        </div>
+                        <div>
+                          <p class="text-muted-foreground">Tipo</p>
+                          <p class="font-medium text-foreground">
+                            {{ user.employee.employeeType }}
+                          </p>
+                        </div>
+                        <div>
+                          <p class="text-muted-foreground">Estado</p>
+                          <p class="font-medium text-foreground">
+                            {{ user.employee.status }}
+                          </p>
+                        </div>
+                        <div>
+                          <p class="text-muted-foreground">ID empleado</p>
+                          <p class="font-medium text-foreground">
+                            {{ user.employee.id }}
+                          </p>
+                        </div>
+                      </div>
                     </template>
                     <template v-else>
-                      <p>No aplica</p>
+                      <p>No aplica / no disponible en sesión.</p>
                     </template>
                   </CardContent>
                 </Card>
@@ -291,7 +320,9 @@
               </div>
 
               <div class="rounded-lg border bg-muted/30 p-4 space-y-2">
-                <p class="font-medium text-foreground">2FA</p>
+                <p class="font-medium text-foreground">
+                  Autenticación de dos factores (2FA)
+                </p>
                 <p class="text-xs text-muted-foreground">
                   Tu cuenta actualmente tiene 2FA:
                   <span class="font-medium text-foreground">{{
@@ -299,13 +330,87 @@
                   }}</span
                   >.
                 </p>
-                <div class="flex gap-2">
-                  <Button variant="outline" disabled
-                    >Configurar 2FA (mock)</Button
+
+                <!-- Formulario de verificación 2FA -->
+                <div
+                  v-if="twoFaState.challengeId"
+                  class="mt-3 space-y-3 rounded-lg border bg-card p-3"
+                >
+                  <p class="text-sm font-medium">
+                    Ingresa el código de verificación
+                  </p>
+                  <p class="text-xs text-muted-foreground">
+                    Se ha enviado un código de 6 dígitos a tu correo
+                    electrónico.
+                  </p>
+
+                  <form @submit.prevent="handleConfirm2fa" class="space-y-3">
+                    <div class="space-y-2">
+                      <label class="text-xs font-medium text-muted-foreground"
+                        >Código de verificación *</label
+                      >
+                      <Input
+                        v-model="twoFaState.code"
+                        type="text"
+                        required
+                        maxlength="6"
+                        pattern="[0-9]{6}"
+                        :disabled="confirm2faMutation.isLoading.value"
+                      />
+                    </div>
+
+                    <div class="flex justify-end gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        @click="cancel2faFlow"
+                        :disabled="confirm2faMutation.isLoading.value"
+                      >
+                        Cancelar
+                      </Button>
+                      <Button
+                        type="submit"
+                        :disabled="
+                          confirm2faMutation.isLoading.value ||
+                          twoFaState.code.length !== 6
+                        "
+                      >
+                        {{
+                          confirm2faMutation.isLoading.value
+                            ? "Verificando..."
+                            : "Verificar código"
+                        }}
+                      </Button>
+                    </div>
+                  </form>
+                </div>
+
+                <!-- Botones de acción -->
+                <div v-else class="flex gap-2 pt-2">
+                  <Button
+                    v-if="!user.twoFaEnabled"
+                    variant="default"
+                    @click="handleEnable2fa"
+                    :disabled="request2faMutation.isLoading.value"
                   >
-                  <Button variant="outline" disabled
-                    >Desactivar 2FA (mock)</Button
+                    {{
+                      request2faMutation.isLoading.value
+                        ? "Enviando código..."
+                        : "Activar 2FA"
+                    }}
+                  </Button>
+                  <Button
+                    v-else
+                    variant="outline"
+                    @click="handleDisable2fa"
+                    :disabled="request2faMutation.isLoading.value"
                   >
+                    {{
+                      request2faMutation.isLoading.value
+                        ? "Enviando código..."
+                        : "Desactivar 2FA"
+                    }}
+                  </Button>
                 </div>
               </div>
             </CardContent>
@@ -341,14 +446,18 @@
   import { Input } from "@/components/ui/input";
   import { Separator } from "@/components/ui/separator";
   import { toast } from "vue-sonner";
+  import { useMutation } from "@pinia/colada";
+  import { profileApi } from "~/lib/api/profile";
 
   const sessionStore = useSessionStore();
   const user = computed(() => sessionStore.sessionUser);
 
   const displayName = computed(() => {
-    // Si luego decides mapear employee/patient a nombres, aquí queda fácil.
-    // Por ahora solo username.
-    return user.value?.username ?? "Usuario";
+    return user.value?.patient
+      ? user.value?.patient.firstName + " " + user.value?.patient.lastName
+      : user.value?.employee
+      ? user.value?.employee.firstName + " " + user.value?.employee.lastName
+      : "Usuario";
   });
 
   const initials = computed(() => {
@@ -397,14 +506,10 @@
     }
 
     isChangingPassword.value = true;
-
     try {
-      const response = await $api("/auth/change-password", {
-        method: "POST",
-        body: {
-          currentPassword: passwordForm.currentPassword,
-          newPassword: passwordForm.newPassword,
-        },
+      await profileApi.changePassword({
+        currentPassword: passwordForm.currentPassword,
+        newPassword: passwordForm.newPassword,
       });
 
       toast.success("Contraseña actualizada exitosamente");
@@ -417,6 +522,96 @@
         error?.message ||
         "Error al cambiar la contraseña";
       toast.error(errorMessage);
+    } finally {
+      isChangingPassword.value = false;
+    }
+  }
+
+  // =============================
+  // 2FA Management
+  // =============================
+  const twoFaState = reactive({
+    action: "" as "enable" | "disable" | "",
+    challengeId: "",
+    code: "",
+  });
+
+  // Mutation para solicitar código (enable o disable)
+  const request2faMutation = useMutation({
+    mutation: async (action: "enable" | "disable") => {
+      if (action === "enable") {
+        return await profileApi.requestEnable2fa();
+      } else {
+        return await profileApi.requestDisable2fa();
+      }
+    },
+    onSuccess: (data, variables) => {
+      twoFaState.action = variables;
+      twoFaState.challengeId = data.challengeId;
+      twoFaState.code = "";
+      toast.success("Código de verificación enviado a tu correo electrónico");
+    },
+    onError: (error: any) => {
+      const errorMessage =
+        error?.data?.message || error?.message || "Error al enviar código";
+      toast.error(errorMessage);
+    },
+  });
+
+  // Mutation para confirmar código (enable o disable)
+  const confirm2faMutation = useMutation({
+    mutation: async () => {
+      if (twoFaState.action === "enable") {
+        return await profileApi.confirmEnable2fa({
+          challengeId: twoFaState.challengeId,
+          code: twoFaState.code,
+        });
+      } else {
+        return await profileApi.confirmDisable2fa({
+          challengeId: twoFaState.challengeId,
+          code: twoFaState.code,
+        });
+      }
+    },
+    onSuccess: async () => {
+      const actionText =
+        twoFaState.action === "enable" ? "activado" : "desactivado";
+      toast.success(`2FA ${actionText} exitosamente`);
+
+      // Recargar datos del usuario
+      await sessionStore.recoverSession();
+
+      // Limpiar estado
+      cancel2faFlow();
+    },
+    onError: (error: any) => {
+      const errorMessage =
+        error?.data?.message || error?.message || "Error al verificar código";
+      toast.error(errorMessage);
+    },
+  });
+
+  function handleEnable2fa() {
+    request2faMutation.mutate("enable");
+  }
+
+  function handleDisable2fa() {
+    request2faMutation.mutate("disable");
+  }
+
+  function handleConfirm2fa() {
+    if (twoFaState.code.length !== 6) {
+      toast.error("El código debe tener 6 dígitos");
+      return;
+    }
+    confirm2faMutation.mutate();
+  }
+
+  function cancel2faFlow() {
+    try {
+      twoFaState.action = "";
+      twoFaState.challengeId = "";
+      twoFaState.code = "";
     } finally {
       isChangingPassword.value = false;
     }
