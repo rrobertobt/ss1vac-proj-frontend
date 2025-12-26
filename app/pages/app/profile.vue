@@ -454,9 +454,9 @@
 
   const displayName = computed(() => {
     return user.value?.patient
-      ? user.value?.patient.firstName + " " + user.value?.patient.lastName
+      ? user.value?.patient.first_name + " " + user.value?.patient.last_name
       : user.value?.employee
-      ? user.value?.employee.firstName + " " + user.value?.employee.lastName
+      ? user.value?.employee.first_name + " " + user.value?.employee.last_name
       : "Usuario";
   });
 

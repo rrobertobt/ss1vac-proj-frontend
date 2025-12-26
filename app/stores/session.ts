@@ -154,6 +154,9 @@ export const useSessionStore = defineStore("session", () => {
   }
 
   function navigateByRole(roleName: string | null) {
+    navigateTo("/app/dashboard");
+    return
+
     if (!roleName) {
       navigateTo("/");
       return;

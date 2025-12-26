@@ -55,9 +55,9 @@
           <div class="hidden sm:flex flex-col items-end leading-tight">
             <p class="text-sm font-medium">
               {{ sessionUser?.patient
-                ? sessionUser?.patient.firstName + " " + sessionUser?.patient.lastName
+                ? sessionUser?.patient.first_name + " " + sessionUser?.patient.last_name
                 : sessionUser?.employee
-                ? sessionUser?.employee.firstName + " " + sessionUser?.employee.lastName
+                ? sessionUser?.employee.first_name + " " + sessionUser?.employee.last_name
                 : "Usuario" }}
             </p>
             <div class="flex items-center gap-2">
@@ -89,7 +89,6 @@
       <aside
         class="hidden lg:flex w-64 border-r border-border/60 min-h-[calc(100vh-3.5rem)]"
       >
-      <!-- {{ sessionUser }} -->
         <div class="w-full p-3 space-y-2">
           <p
             class="px-2 pt-2 text-xs font-semibold tracking-wider text-muted-foreground uppercase"
@@ -238,26 +237,6 @@
 
   const role = computed(() => sessionUser.value?.roleName as string | undefined);
 
-  const roleLabel = computed(() => {
-    switch (role.value) {
-      case "ADMIN":
-        return "Administrador";
-      case "ADMINISTRATIVE":
-        return "Administrativo";
-      case "PSYCHOLOGIST":
-        return "Psicólogo";
-      case "PSYCHIATRIST":
-        return "Psiquiatra";
-      case "TECHNICIAN":
-        return "Técnico";
-      case "MAINTENANCE":
-        return "Mantenimiento";
-      case "PATIENT":
-        return "Paciente";
-      default:
-        return "Usuario";
-    }
-  });
 
   const navItems = computed<NavItem[]>(() => {
     const r = role.value;
@@ -303,7 +282,7 @@
       { label: "Facturación", to: "/app/billing/invoices" },
       { label: "Inventario", to: "/app/inventory/items" },
       // opcional para ADMIN:
-      // ...(r === 'ADMIN' ? [{ label: 'Usuarios', to: '/app/admin/users' }] : []),
+      ...(r === 'SUPER_ADMIN' ? [{ label: 'Usuarios', to: '/app/admin/users' }] : []),
       // { label: 'Reportes', to: '/app/reports' },
     ];
   });

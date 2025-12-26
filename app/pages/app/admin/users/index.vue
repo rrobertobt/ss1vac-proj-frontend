@@ -12,7 +12,7 @@
         :totalPages="users?.meta.totalPages"
         :paginationState="paginationOptions"
         :enable-sorting="false"
-        table-key-name="inscriptions-table"
+        table-key-name="users-table"
         @pagination-change="
           ($event) => {
             if (typeof $event === 'function') {
@@ -33,6 +33,7 @@
 import { Icon } from "#components";
 import type { ColumnDef } from '@tanstack/vue-table';
 import DataTable from "~/components/datatable/DataTable.vue";
+import { Badge } from "~/components/ui/badge";
 import type { PagedResponse } from '~/lib/api/base';
 import { usersApi, type UserItemList } from '~/lib/api/users';
 
@@ -63,7 +64,6 @@ import { usersApi, type UserItemList } from '~/lib/api/users';
 
   const paginationOptions = computed({
     get: () => ({
-      // Convert from 1-based (API) to 0-based (TanStack Table)
       pageIndex: route.query.page ? Number(route.query.page) - 1 : 0,
       pageSize: route.query.limit ? Number(route.query.limit) : 10,
     }),
@@ -71,7 +71,6 @@ import { usersApi, type UserItemList } from '~/lib/api/users';
       navigateTo({
         query: {
           ...route.query,
-          // Convert from 0-based (TanStack Table) to 1-based (API)
           page: value.pageIndex + 1,
           limit: value.pageSize,
         },
@@ -90,7 +89,7 @@ import { usersApi, type UserItemList } from '~/lib/api/users';
       },
       header: () => (
         <div class="text-center font-semibold">
-          <Icon name="lucide:user" class="inline mr-1 mb-0.5" />
+          <Icon name="lucide:user" class="inline mr-1 " />
           Nombres
         </div>
       ),
@@ -98,6 +97,48 @@ import { usersApi, type UserItemList } from '~/lib/api/users';
         <div class="text-base">{row.getValue("fullName")}</div>
       ),
     },
+    {
+      accessorKey: "email",
+      meta: {
+        displayName: "Correo Electrónico",
+      },
+      header: () => (
+        <div class="text-center font-semibold">
+          <Icon name="lucide:mail" class="inline mr-1 " />
+          Correo Electrónico
+        </div>
+      ),
+      cell: ({ row }) => (
+        <div class="text-base">{row.getValue("email")}</div>
+      ),
+    },
+    {
+      accessorFn: (row) => row.employee ? "Empleado" : row.patient ? "Paciente" : "N/A",
+      id: "type",
+      meta: {
+        displayName: "Tipo",
+      },
+      header: () => (
+        <div class="text-center font-semibold">
+          <Icon name="lucide:shapes" class="inline mr-1 " />
+          Tipo</div>
+      ),
+      cell: ({ row }) => (
+        <Badge>{row.getValue("type")}</Badge>
+      ),
+    },
+    {
+      accessorKey: "role.label",
+      meta: {
+        displayName: "Rol",
+      },
+      header: () => (
+        <div class="text-center font-semibold">
+          <Icon name="lucide:shield-check" class="inline mr-1 " />
+          Rol
+        </div>
+      ),
+    }
   ]
 </script>
 <style scoped></style>
