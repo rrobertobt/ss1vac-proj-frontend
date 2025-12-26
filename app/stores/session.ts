@@ -2,6 +2,23 @@ import { defineStore } from "pinia";
 import { $api } from "~/utils/plain-fetch";
 
 // Tipos que devuelve el backend
+export interface PatientModel {
+  id: number;
+  firstName: string;
+  lastName: string;
+  dob: string | null;
+  phone: string | null;
+  email: string | null;
+  status: string;
+}
+
+export interface EmployeeModel {
+  id: number;
+  firstName: string;
+  lastName: string;
+  employeeType: string;
+  status: string;
+}
 export interface PublicUser {
   id: number;
   email: string;
@@ -10,6 +27,8 @@ export interface PublicUser {
   roleName: string | null;
   roleLabel: string | null;
   twoFaEnabled: boolean;
+  employee?: any;
+  patient?: any;
 }
 
 // Respuesta de login sin 2FA

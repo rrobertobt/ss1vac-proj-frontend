@@ -224,12 +224,6 @@
   import { Separator } from "@/components/ui/separator";
   import { useSessionStore } from "@/stores/session";
 
-  definePageMeta({
-    // Este layout se usa para /app/*
-    // Si manejas middleware, puedes ponerlo aquí también:
-    // middleware: ['auth'],
-  });
-
   type NavItem = {
     label: string;
     to: string;
