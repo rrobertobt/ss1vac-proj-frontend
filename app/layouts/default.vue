@@ -89,6 +89,7 @@
       <aside
         class="hidden lg:flex w-64 border-r border-border/60 min-h-[calc(100vh-3.5rem)]"
       >
+      <!-- {{ sessionUser }} -->
         <div class="w-full p-3 space-y-2">
           <p
             class="px-2 pt-2 text-xs font-semibold tracking-wider text-muted-foreground uppercase"
@@ -118,12 +119,6 @@
             </NuxtLink>
           </nav>
 
-          <Separator class="my-3" />
-
-          <p class="px-2 text-xs text-muted-foreground">
-            Sesión:
-            <span class="font-medium text-foreground">{{ sessionUser?.roleLabel }}</span>
-          </p>
         </div>
       </aside>
 
