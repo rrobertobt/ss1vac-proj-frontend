@@ -67,7 +67,7 @@
               <span
                 class="text-[0.7rem] px-2 py-0.5 rounded-full border bg-muted/40"
               >
-                {{ sessionUser?.roleLabel }}
+                {{ sessionUser?.role_label }}
               </span>
             </div>
           </div>
@@ -207,7 +207,7 @@
 
       <!-- Content -->
       <main class="flex-1 min-h-[calc(100vh-3.5rem)]">
-        <div class="p-4 lg:p-6">
+        <div class="p-4 lg:p-6 container mx-auto">
           <NuxtPage />
         </div>
       </main>
@@ -235,7 +235,7 @@
   const sessionStore = useSessionStore();
   const sessionUser = computed(() => sessionStore.sessionUser);
 
-  const role = computed(() => sessionUser.value?.roleName as string | undefined);
+  const role = computed(() => sessionUser.value?.role_name as string | undefined);
 
 
   const navItems = computed<NavItem[]>(() => {
@@ -282,7 +282,7 @@
       { label: "Facturación", to: "/app/billing/invoices" },
       { label: "Inventario", to: "/app/inventory/items" },
       // opcional para ADMIN:
-      ...(r === 'SUPER_ADMIN' ? [{ label: 'Usuarios', to: '/app/admin/users' }] : []),
+      ...(r === 'SUPER_ADMIN' ? [{ label: 'Usuarios', to: '/app/admin/users' }, { label: 'Áreas y especialidades', to: '/app/admin/areas-specialties' }] : []),
       // { label: 'Reportes', to: '/app/reports' },
     ];
   });

@@ -1,6 +1,18 @@
 <template>
   <div>
     <h1 class="text-3xl font-bold mb-6">Gestión de Usuarios</h1>
+    <Button as-child>
+      <NuxtLink to="/app/admin/employees/new">
+        Crear Empleado
+        <Icon name="lucide:user-plus" class="inline" />
+      </NuxtLink>
+    </Button>
+    <Button as-child class="ml-4">
+      <NuxtLink to="/app/admin/patients/new">
+        Crear Paciente
+        <Icon name="lucide:user-plus" class="inline" />
+      </NuxtLink>
+    </Button>
     <div
       class="max-w-6xl mx-auto rounded-lg relative"
       v-if="users"

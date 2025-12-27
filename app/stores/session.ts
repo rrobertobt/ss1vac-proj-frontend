@@ -4,8 +4,8 @@ import { $api } from "~/utils/plain-fetch";
 // Tipos que devuelve el backend
 export interface PatientModel {
   id: number;
-  firstName: string;
-  lastName: string;
+  first_name: string;
+  last_name: string;
   dob: string | null;
   phone: string | null;
   email: string | null;
@@ -14,19 +14,19 @@ export interface PatientModel {
 
 export interface EmployeeModel {
   id: number;
-  firstName: string;
-  lastName: string;
-  employeeType: string;
+  first_name: string;
+  last_name: string;
+  employee_type: string;
   status: string;
 }
 export interface PublicUser {
   id: number;
   email: string;
   username: string;
-  roleId: number;
-  roleName: string | null;
-  roleLabel: string | null;
-  twoFaEnabled: boolean;
+  role_id: number;
+  role_name: string | null;
+  role_label: string | null;
+  two_fa_enabled: boolean;
   employee?: any;
   patient?: any;
 }
