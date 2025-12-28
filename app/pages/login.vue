@@ -89,6 +89,15 @@
             <Icon v-else name="lucide:arrow-right" class="mr-2 h-4 w-4" />
             {{ loadingLogin ? "Iniciando sesión..." : "Continuar" }}
           </Button>
+
+          <div class="text-center">
+            <NuxtLink
+              to="/forgot-password"
+              class="text-sm text-primary hover:underline"
+            >
+              ¿Olvidaste tu contraseña?
+            </NuxtLink>
+          </div>
         </form>
       </CardContent>
     </Card>

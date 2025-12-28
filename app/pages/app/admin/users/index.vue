@@ -13,6 +13,9 @@
         <Icon name="lucide:user-plus" class="inline" />
       </NuxtLink>
     </Button>
+
+    <UsersFilters class="mt-2 mb-6" :loading="status === 'pending'" />
+
     <div
       class="max-w-6xl mx-auto rounded-lg relative"
       v-if="users"
@@ -46,6 +49,7 @@ import { Icon } from "#components";
 import type { ColumnDef } from '@tanstack/vue-table';
 import DataTable from "~/components/datatable/DataTable.vue";
 import { Badge } from "~/components/ui/badge";
+import UsersFilters from "~/components/users/UsersFilters.vue";
 import type { PagedResponse } from '~/lib/api/base';
 import { usersApi, type UserItemList } from '~/lib/api/users';
 
