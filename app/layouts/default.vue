@@ -285,7 +285,7 @@
       // { label: "Facturación", to: "/app/billing/invoices" },
       // { label: "Inventario", to: "/app/inventory/items" },
       // opcional para ADMIN:
-      ...(r === 'SUPER_ADMIN' ? [{label: 'Empleados', to: '/app/admin/employees'},{ label: 'Usuarios', to: '/app/admin/users' }, { label: 'Áreas y especialidades', to: '/app/admin/areas-specialties' }, {label: 'Permisos', to: '/app/admin/permissions'}, {label: 'Reportes', to: '/app/reports'}] : []),
+      ...(r === 'SUPER_ADMIN' ? [{label: 'Empleados', to: '/app/admin/employees'},{ label: 'Usuarios', to: '/app/admin/users' }, { label: 'Áreas y especialidades', to: '/app/admin/areas-specialties' }, {label: 'Permisos', to: '/app/admin/permissions'}, {label: 'Reportes', to: '/app/reports'}, {label: 'Nómina', to: '/app/payroll'}] : []),
     ];
   });
 
