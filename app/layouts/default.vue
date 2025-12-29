@@ -250,7 +250,8 @@
         { label: "Mis Citas", to: "/app/appointments/patient" },
         // { label: "Mis facturas", to: "/app/billing/invoices" },
         // opcional:
-        // { label: 'Mis tareas', to: '/app/tasks' },
+        { label: 'Mis tareas', to: '/app/my-tasks' },
+        { label: 'Mi historial clínico', to: '/app/my-clinical-records' },
       ];
     }
 

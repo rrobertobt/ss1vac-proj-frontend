@@ -66,3 +66,12 @@ export function updatePatientTask(taskId: number, data: UpdatePatientTaskRequest
     body: JSON.stringify(data),
   });
 }
+
+/**
+ * Obtiene las tareas del paciente autenticado
+ */
+export function getMyTasks() {
+  return $api<PatientTaskResponse[]>("/patients/me/tasks", {
+    method: "GET",
+  });
+}

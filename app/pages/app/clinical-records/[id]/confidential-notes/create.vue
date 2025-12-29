@@ -132,10 +132,6 @@ import { Label } from "~/components/ui/label";
 import { Icon } from "#components";
 import { NuxtLink } from "#components";
 
-definePageMeta({
-  layout: "default",
-  middleware: ["auth"],
-});
 
 const route = useRoute();
 const router = useRouter();

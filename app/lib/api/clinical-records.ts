@@ -107,3 +107,12 @@ export function updateClinicalRecord(id: number, data: UpdateClinicalRecordReque
     body: JSON.stringify(data),
   });
 }
+
+/**
+ * Obtiene las historias clínicas del paciente autenticado
+ */
+export function getMyClinicalRecords() {
+  return $api<ClinicalRecordResponse[]>("/clinical-records/me", {
+    method: "GET",
+  });
+}

@@ -80,17 +80,13 @@
                   <Icon name="lucide:calendar" class="h-3 w-3" />
                   {{ formatDateTime(note.created_at) }}
                 </div>
-                {note.created_by && (
                   <div class="flex items-center gap-1">
                     <Icon name="lucide:user" class="h-3 w-3" />
-                    {{ note.created_by.first_name }} {{ note.created_by.last_name }}
-                    {note.created_by.license_number && (
+                    {{ note.author?.first_name }} {{ note.author?.last_name }}
                       <span class="text-xs">
-                        ({{ note.created_by.license_number }})
+                        ({{ note.author?.license_number }})
                       </span>
-                    )}
                   </div>
-                )}
               </div>
             </div>
             <Badge variant="secondary" class="bg-amber-100 text-amber-800 border-amber-300">
@@ -118,11 +114,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Badge } from "~/components/ui/badge";
 import { Icon } from "#components";
 import { NuxtLink } from "#components";
-
-definePageMeta({
-  layout: "default",
-  middleware: ["auth"],
-});
 
 const route = useRoute();
 const clinicalRecordId = computed(() => Number(route.params.id));
@@ -152,6 +143,7 @@ function formatDateTime(dateString: string): string {
     day: "numeric",
     hour: "2-digit",
     minute: "2-digit",
+    timeZone: "UTC"
   });
 }
 </script>
