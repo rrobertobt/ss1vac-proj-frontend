@@ -247,7 +247,7 @@
     if (r === "PATIENT") {
       return [
         ...base,
-        // { label: "Mis citas", to: "/app/appointments" },
+        { label: "Mis Citas", to: "/app/appointments/patient" },
         // { label: "Mis facturas", to: "/app/billing/invoices" },
         // opcional:
         // { label: 'Mis tareas', to: '/app/tasks' },
@@ -257,7 +257,7 @@
     if (r === "PSYCHOLOGIST" || r === "PSYCHIATRIST") {
       return [
         ...base,
-        { label: "Mis citas", to: "/app/appointments" },
+        { label: "Mi Agenda", to: "/app/appointments/professional" },
         // { label: "Pacientes", to: "/app/patients" },
         // opcional:
         // { label: 'Reportes', to: '/app/reports' },
@@ -291,6 +291,8 @@
     // Título simple basado en ruta; puedes mejorar con un mapa
     if (route.path.startsWith("/app/dashboard")) return "Dashboard";
     if (route.path.startsWith("/app/patients")) return "Pacientes";
+    if (route.path.startsWith("/app/appointments/patient")) return "Mis Citas";
+    if (route.path.startsWith("/app/appointments/professional")) return "Mi Agenda";
     if (route.path.startsWith("/app/appointments")) return "Citas";
     if (route.path.startsWith("/app/billing")) return "Facturación";
     if (route.path.startsWith("/app/inventory")) return "Inventario";

@@ -168,4 +168,11 @@ export const appointmentsApi = {
   async myAppointments(): Promise<AppointmentResponse[]> {
     return await $api<AppointmentResponse[]>("/appointments/my-appointments");
   },
+
+  // Mis citas como profesional (portal profesional)
+  async myProfessionalAppointments(): Promise<AppointmentResponse[]> {
+    return await $api<AppointmentResponse[]>(
+      "/appointments/my-professional-appointments"
+    );
+  },
 };

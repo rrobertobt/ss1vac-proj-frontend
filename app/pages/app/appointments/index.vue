@@ -1,7 +1,12 @@
 <template>
   <div>
     <div class="flex items-center justify-between mb-6">
-      <h1 class="text-3xl font-bold">Gestión de Citas</h1>
+      <div>
+        <h1 class="text-3xl font-bold">Gestión de Citas</h1>
+        <p class="text-muted-foreground text-sm mt-1">
+          Administra todas las citas del sistema
+        </p>
+      </div>
       <Button as-child>
         <NuxtLink to="/app/appointments/new">
           <Icon name="lucide:calendar-plus" class="mr-2 h-4 w-4" />
@@ -60,9 +65,9 @@
     <div class="rounded-lg relative" v-if="appointments">
       <DataTable
         :columns="columns"
-        :data="appointments?.data"
-        :totalElements="appointments?.meta.total"
-        :totalPages="appointments?.meta.totalPages"
+        :data="appointments.data"
+        :totalElements="totalAppointments"
+        :totalPages="totalPages"
         :paginationState="paginationOptions"
         :enable-sorting="false"
         table-key-name="appointments-table"
@@ -117,6 +122,7 @@
   import type { PagedResponse } from "~/lib/api/base";
   import { NuxtLink } from "#components";
   import { Button } from "~/components/ui/button";
+  import { Badge } from "~/components/ui/badge";
   import { Card, CardContent } from "~/components/ui/card";
   import { Input } from "~/components/ui/input";
   import { Label } from "~/components/ui/label";
@@ -138,9 +144,19 @@
     AlertDialogTitle,
   } from "~/components/ui/alert-dialog";
   import { toast } from "vue-sonner";
+  import { useSessionStore } from "@/stores/session";
 
   const route = useRoute();
   const router = useRouter();
+  const sessionStore = useSessionStore();
+
+  // Redirect según rol
+  const userRole = sessionStore.sessionUser?.role_name;
+  if (userRole === "PATIENT") {
+    navigateTo("/app/appointments/patient");
+  } else if (userRole === "PSYCHOLOGIST" || userRole === "PSYCHIATRIST") {
+    navigateTo("/app/appointments/professional");
+  }
 
   const dateFrom = ref(route.query.from?.toString() || "");
   const dateTo = ref(route.query.to?.toString() || "");
@@ -150,28 +166,36 @@
   const completeDialogOpen = ref(false);
   const selectedAppointment = ref<AppointmentResponse | null>(null);
 
+  // Cargar citas (solo admins)
   const {
     data: appointments,
     status,
     error,
     refresh: refreshAppointments,
   } = await useAsyncData<PagedResponse<AppointmentResponse>>(
-    "admin-appointments",
-    () =>
-      appointmentsApi.list({
+    "appointments",
+    async () => {
+      return await appointmentsApi.list({
         page: route.query.page ? Number(route.query.page) : 1,
+        limit: route.query.limit ? Number(route.query.limit) : 10,
         from: route.query.from ? String(route.query.from) : undefined,
         to: route.query.to ? String(route.query.to) : undefined,
         status:
           route.query.status && route.query.status !== "ALL"
-            ? (route.query.status as any)
+            ? (String(route.query.status) as "SCHEDULED" | "COMPLETED" | "CANCELLED" | "NO_SHOW")
             : undefined,
-      }),
-    {
-      lazy: true,
-      watch: [() => route.query],
+      });
     },
+    { watch: [() => route.query] }
   );
+
+  const totalAppointments = computed(() => {
+    return appointments.value?.meta?.total || 0;
+  });
+
+  const totalPages = computed(() => {
+    return appointments.value?.meta?.totalPages || 1;
+  });
 
   const paginationOptions = computed({
     get: () => ({
@@ -343,9 +367,7 @@
           Tipo
         </div>
       ),
-      cell: ({ row }) => (
-        <div class="text-sm">{row.original.appointment_type || "N/A"}</div>
-      ),
+      cell: ({ row }) => <div class="text-sm">{row.getValue("appointment_type")}</div>,
     },
     {
       accessorKey: "status",
@@ -361,9 +383,8 @@
       cell: ({ row }) => {
         const badge = getStatusBadge(row.original.status);
         return (
-          <div class="flex items-center justify-center gap-2">
-            <div class={`h-2 w-2 rounded-full ${badge.class}`} />
-            <span class="text-sm">{badge.label}</span>
+          <div class="flex justify-center">
+            <Badge class={badge.class}>{badge.label}</Badge>
           </div>
         );
       },
@@ -374,41 +395,51 @@
         displayName: "Acciones",
       },
       header: () => <div class="text-center font-semibold">Acciones</div>,
-      cell: ({ row }) => (
-        <div class="flex gap-2 justify-center">
-          <Button asChild size="sm" variant="outline">
-            <NuxtLink to={`/app/appointments/${row.original.id}`}>
-              <Icon name="lucide:eye" class="h-4 w-4" />
-            </NuxtLink>
-          </Button>
-          {row.original.status === "SCHEDULED" && (
-            <>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => router.push(`/app/appointments/${row.original.id}/edit`)}
-              >
-                <Icon name="lucide:pencil" class="h-4 w-4" />
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                class="text-green-600 hover:text-green-700"
-                onClick={() => openCompleteDialog(row.original)}
-              >
-                <Icon name="lucide:check" class="h-4 w-4" />
-              </Button>
-              <Button
-                size="sm"
-                variant="destructive"
-                onClick={() => openCancelDialog(row.original)}
-              >
-                <Icon name="lucide:x" class="h-4 w-4" />
-              </Button>
-            </>
-          )}
-        </div>
-      ),
+      cell: ({ row }) => {
+        const handleEdit = () => {
+          router.push(`/app/appointments/${row.original.id}/edit`);
+        };
+        
+        const handleComplete = () => {
+          openCompleteDialog(row.original);
+        };
+        
+        const handleCancel = () => {
+          openCancelDialog(row.original);
+        };
+        
+        return (
+          <div class="flex gap-2 justify-center">
+            <Button asChild size="sm" variant="outline">
+              <NuxtLink to={`/app/appointments/${row.original.id}`}>
+                <Icon name="lucide:eye" class="h-4 w-4" />
+              </NuxtLink>
+            </Button>
+            {row.original.status === "SCHEDULED" && (
+              <>
+                <button
+                  class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2"
+                  onClick={handleEdit}
+                >
+                  <Icon name="lucide:pencil" class="h-4 w-4" />
+                </button>
+                <button
+                  class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background shadow-sm h-9 px-4 py-2 text-green-600 hover:bg-accent hover:text-green-700"
+                  onClick={handleComplete}
+                >
+                  <Icon name="lucide:check" class="h-4 w-4" />
+                </button>
+                <button
+                  class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 h-9 px-4 py-2"
+                  onClick={handleCancel}
+                >
+                  <Icon name="lucide:x" class="h-4 w-4" />
+                </button>
+              </>
+            )}
+          </div>
+        );
+      },
     },
   ];
 </script>
