@@ -257,7 +257,7 @@
     if (r === "PSYCHOLOGIST" || r === "PSYCHIATRIST") {
       return [
         ...base,
-        // { label: "Mis citas", to: "/app/appointments" },
+        { label: "Mis citas", to: "/app/appointments" },
         // { label: "Pacientes", to: "/app/patients" },
         // opcional:
         // { label: 'Reportes', to: '/app/reports' },
@@ -278,7 +278,7 @@
     return [
       ...base,
       { label: "Pacientes", to: "/app/patients" },
-      // { label: "Citas", to: "/app/appointments" },
+      { label: "Citas", to: "/app/appointments" },
       // { label: "Facturación", to: "/app/billing/invoices" },
       // { label: "Inventario", to: "/app/inventory/items" },
       // opcional para ADMIN:
