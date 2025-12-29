@@ -1,5 +1,7 @@
 export const areasApi = {
-  list: () => $api('/areas'),
+  list: () => $api<
+    Array<{ id: number; name: string; description: string }>
+  >('/areas'),
   create: (data: { name: string; description: string }) => $api('/areas', {
     method: 'POST',
     body: data,

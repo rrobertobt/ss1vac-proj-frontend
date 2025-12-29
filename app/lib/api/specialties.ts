@@ -1,5 +1,7 @@
 export const specialtiesApi = {
-  list: () => $api('/specialties'),
+  list: () => $api<
+    Array<{ id: number; name: string; description: string }>
+  >('/specialties'),
   create: (data: { name: string; description: string }) => $api('/specialties', {
     method: 'POST',
     body: data,

@@ -6,5 +6,5 @@ export interface RoleItemList {
 }
 
 export const roleApi = {
-  list: () => $api('/roles')
+  list: () => $api<Array<RoleItemList>>('/roles')
 }

@@ -4,16 +4,18 @@
   <div class="mb-6 space-x-3">
     <Dialog v-model:open="dialogs.areaOpen">
       <DialogTrigger as-child>
-        <Button>
+        <Button @click="handleOpenCreateArea">
           Crear Area
           <Icon name="lucide:plus" class="inline" />
         </Button>
       </DialogTrigger>
       <DialogContent class="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Crear/Editar Área</DialogTitle>
+          <DialogTitle>{{
+            areaEditId ? "Editar Área" : "Crear Área"
+          }}</DialogTitle>
         </DialogHeader>
-        <form @submit.prevent="handleCreateArea">
+        <form @submit.prevent="handleSubmitArea">
           <div class="grid gap-4 py-4">
             <div class="grid gap-2">
               <label
@@ -50,16 +52,18 @@
     </Dialog>
     <Dialog v-model:open="dialogs.specialtyOpen">
       <DialogTrigger as-child>
-        <Button>
+        <Button @click="handleOpenCreateSpecialty">
           Crear Especialidad
           <Icon name="lucide:plus" class="inline" />
         </Button>
       </DialogTrigger>
       <DialogContent class="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Crear/Editar Especialidad</DialogTitle>
+          <DialogTitle>{{
+            specialtyEditId ? "Editar Especialidad" : "Crear Especialidad"
+          }}</DialogTitle>
         </DialogHeader>
-        <form @submit.prevent="handleCreateSpecialty">
+        <form @submit.prevent="handleSubmitSpecialty">
           <div class="grid gap-4 py-4">
             <div class="grid gap-2">
               <label
@@ -134,7 +138,7 @@
             </Button>
 
             <AlertDialog>
-              <AlertDialogTrigger
+              <AlertDialogTrigger as-child
                 ><Button variant="destructive" size="sm">
                   Eliminar
                 </Button></AlertDialogTrigger
@@ -146,9 +150,9 @@
                   >
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
                   <AlertDialogAction @click="handleDeleteArea(area.id)"
-                    >Continue</AlertDialogAction
+                    >Continuar</AlertDialogAction
                   >
                 </AlertDialogFooter>
               </AlertDialogContent>
@@ -200,7 +204,7 @@
               Editar
             </Button>
             <AlertDialog>
-              <AlertDialogTrigger
+              <AlertDialogTrigger as-child
                 ><Button variant="destructive" size="sm">
                   Eliminar
                 </Button></AlertDialogTrigger
@@ -213,10 +217,10 @@
                   >
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
                   <AlertDialogAction
                     @click="handleDeleteSpecialty(specialty.id)"
-                    >Continue</AlertDialogAction
+                    >Continuar</AlertDialogAction
                   >
                 </AlertDialogFooter>
               </AlertDialogContent>
@@ -274,6 +278,9 @@
     lazy: true,
   });
 
+  const areaEditId = ref<number | null>(null);
+  const specialtyEditId = ref<number | null>(null);
+
   const dialogs = reactive({
     areaOpen: false,
     specialtyOpen: false,
@@ -302,6 +309,7 @@
     } finally {
       areaData.name = "";
       areaData.description = "";
+      areaEditId.value = null;
     }
   };
   const handleCreateSpecialty = async () => {
@@ -317,6 +325,7 @@
     } finally {
       specialtyData.name = "";
       specialtyData.description = "";
+      specialtyEditId.value = null;
     }
   };
 
@@ -343,13 +352,78 @@
     }
   };
 
+  const handleOpenCreateArea = () => {
+    areaEditId.value = null;
+    areaData.name = "";
+    areaData.description = "";
+  };
+
+  const handleOpenCreateSpecialty = () => {
+    specialtyEditId.value = null;
+    specialtyData.name = "";
+    specialtyData.description = "";
+  };
+
   const handleOpenEditArea = (area: any) => {
     areaData.name = area.name;
     areaData.description = area.description;
+    areaEditId.value = area.id;
   };
   const handleOpenEditSpecialty = (specialty: any) => {
     specialtyData.name = specialty.name;
     specialtyData.description = specialty.description;
+    specialtyEditId.value = specialty.id;
+  };
+
+  const handleEditArea = async (id: number) => {
+    try {
+      await areasApi.update(id, areaData);
+      await refreshAreas();
+      toast.success("Área actualizada exitosamente.");
+      dialogs.areaOpen = false;
+    } catch (error) {
+      toast.error("Error al actualizar el área.", {
+        description: error.data?.message?.join(", ") || "",
+      });
+    } finally {
+      areaData.name = "";
+      areaData.description = "";
+      areaEditId.value = null;
+    }
+  };
+  const handleEditSpecialty = async (id: number) => {
+    try {
+      await specialtiesApi.update(id, specialtyData);
+      await refreshSpecialties();
+      toast.success("Especialidad actualizada exitosamente.");
+      dialogs.specialtyOpen = false;
+    } catch (error) {
+      toast.error("Error al actualizar la especialidad.", {
+        description: error.data?.message?.join(", ") || "",
+      });
+    } finally {
+      specialtyData.name = "";
+      specialtyData.description = "";
+      specialtyEditId.value = null;
+    }
+  };
+
+  const handleSubmitArea = async () => {
+    if (areaEditId.value) {
+      await handleEditArea(areaEditId.value);
+      return;
+    }
+
+    await handleCreateArea();
+  };
+
+  const handleSubmitSpecialty = async () => {
+    if (specialtyEditId.value) {
+      await handleEditSpecialty(specialtyEditId.value);
+      return;
+    }
+
+    await handleCreateSpecialty();
   };
 </script>
 <style scoped></style>

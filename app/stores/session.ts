@@ -16,7 +16,6 @@ export interface EmployeeModel {
   id: number;
   first_name: string;
   last_name: string;
-  employee_type: string;
   status: string;
 }
 export interface PublicUser {
