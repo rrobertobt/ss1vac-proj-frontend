@@ -1,0 +1,178 @@
+<template>
+  <div>
+    <div class="mb-6">
+      <Button variant="ghost" as-child class="mb-4">
+        <NuxtLink :to="`/app/patients/${patientId}/tasks`">
+          <Icon name="lucide:arrow-left" class="mr-2 h-4 w-4" />
+          Volver a Tareas
+        </NuxtLink>
+      </Button>
+      <h1 class="text-3xl font-bold">Nueva Tarea</h1>
+      <p class="text-muted-foreground mt-1">
+        Paciente ID #{{ patientId }}
+      </p>
+    </div>
+
+    <Card>
+      <CardContent class="pt-6">
+        <form @submit.prevent="handleSubmit" class="space-y-6">
+          <!-- Información de la Tarea -->
+          <div class="space-y-4">
+            <h3 class="text-lg font-semibold flex items-center">
+              <Icon name="lucide:clipboard-list" class="mr-2 h-5 w-5" />
+              Detalles de la Tarea
+            </h3>
+            <div class="space-y-4">
+              <div class="space-y-2">
+                <Label for="title">
+                  Título <span class="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="title"
+                  v-model="formData.title"
+                  required
+                  maxlength="200"
+                  placeholder="Ej: Completar diario de emociones"
+                  :disabled="isSubmitting"
+                />
+                <p class="text-xs text-muted-foreground">
+                  Título breve y descriptivo de la tarea
+                </p>
+              </div>
+
+              <div class="space-y-2">
+                <Label for="description">Descripción</Label>
+                <Textarea
+                  id="description"
+                  v-model="formData.description"
+                  placeholder="Describe los detalles, instrucciones o pasos de la tarea..."
+                  rows="4"
+                  :disabled="isSubmitting"
+                />
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="space-y-2">
+                  <Label for="due_date">Fecha de Vencimiento</Label>
+                  <Input
+                    id="due_date"
+                    v-model="formData.due_date"
+                    type="date"
+                    :disabled="isSubmitting"
+                  />
+                  <p class="text-xs text-muted-foreground">
+                    Fecha límite para completar la tarea (opcional)
+                  </p>
+                </div>
+
+                <div class="space-y-2">
+                  <Label for="clinical_record_id">ID Historia Clínica</Label>
+                  <Input
+                    id="clinical_record_id"
+                    v-model.number="formData.clinical_record_id"
+                    type="number"
+                    placeholder="ID de la historia clínica"
+                    :disabled="isSubmitting"
+                  />
+                  <p class="text-xs text-muted-foreground">
+                    Asociar con una historia clínica específica (opcional)
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mensaje de Error -->
+          <div v-if="errorMessage" class="rounded-lg bg-red-50 p-4 border border-red-200">
+            <div class="flex items-start">
+              <Icon name="lucide:alert-circle" class="h-5 w-5 text-red-500 mr-2 mt-0.5" />
+              <div>
+                <h3 class="text-sm font-medium text-red-800">Error al crear la tarea</h3>
+                <p class="text-sm text-red-700 mt-1">{{ errorMessage }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Botones de Acción -->
+          <div class="flex items-center justify-end gap-4 pt-4">
+            <Button variant="outline" type="button" as-child :disabled="isSubmitting">
+              <NuxtLink :to="`/app/patients/${patientId}/tasks`">
+                Cancelar
+              </NuxtLink>
+            </Button>
+            <Button type="submit" :disabled="isSubmitting">
+              <Icon
+                v-if="isSubmitting"
+                name="lucide:loader-2"
+                class="mr-2 h-4 w-4 animate-spin"
+              />
+              <Icon v-else name="lucide:save" class="mr-2 h-4 w-4" />
+              {{ isSubmitting ? "Creando..." : "Crear Tarea" }}
+            </Button>
+          </div>
+        </form>
+      </CardContent>
+    </Card>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { createPatientTask, type CreatePatientTaskRequest } from "~/lib/api/patient-tasks";
+import { Button } from "~/components/ui/button";
+import { Card, CardContent } from "~/components/ui/card";
+import { Input } from "~/components/ui/input";
+import { Textarea } from "~/components/ui/textarea";
+import { Label } from "~/components/ui/label";
+import { Icon } from "#components";
+import { NuxtLink } from "#components";
+
+const route = useRoute();
+const router = useRouter();
+const patientId = computed(() => Number(route.params.id));
+
+const formData = ref<CreatePatientTaskRequest>({
+  title: "",
+  description: "",
+  due_date: "",
+  clinical_record_id: undefined,
+});
+
+const isSubmitting = ref(false);
+const errorMessage = ref("");
+
+async function handleSubmit() {
+  if (!formData.value.title.trim()) {
+    errorMessage.value = "El título de la tarea es requerido";
+    return;
+  }
+
+  isSubmitting.value = true;
+  errorMessage.value = "";
+
+  try {
+    const payload: CreatePatientTaskRequest = {
+      title: formData.value.title.trim(),
+    };
+
+    if (formData.value.description?.trim()) {
+      payload.description = formData.value.description.trim();
+    }
+    if (formData.value.due_date?.trim()) {
+      payload.due_date = formData.value.due_date.trim();
+    }
+    if (formData.value.clinical_record_id) {
+      payload.clinical_record_id = formData.value.clinical_record_id;
+    }
+
+    await createPatientTask(patientId.value, payload);
+    
+    // Redirigir a la lista de tareas
+    await router.push(`/app/patients/${patientId.value}/tasks`);
+  } catch (error: any) {
+    console.error("Error creating patient task:", error);
+    errorMessage.value = error.message || "Ocurrió un error al crear la tarea";
+  } finally {
+    isSubmitting.value = false;
+  }
+}
+</script>

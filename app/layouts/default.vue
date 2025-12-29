@@ -247,17 +247,19 @@
     if (r === "PATIENT") {
       return [
         ...base,
-        // { label: "Mis citas", to: "/app/appointments" },
+        { label: "Mis Citas", to: "/app/appointments/patient" },
         // { label: "Mis facturas", to: "/app/billing/invoices" },
         // opcional:
-        // { label: 'Mis tareas', to: '/app/tasks' },
+        { label: 'Mis tareas', to: '/app/my-tasks' },
+        { label: 'Mi historial clínico', to: '/app/my-clinical-records' },
       ];
     }
 
     if (r === "PSYCHOLOGIST" || r === "PSYCHIATRIST") {
       return [
         ...base,
-        // { label: "Mis citas", to: "/app/appointments" },
+        { label: "Mi Agenda", to: "/app/appointments/professional" },
+        { label: "Historial Clínico", to: "/app/clinical-records" },
         // { label: "Pacientes", to: "/app/patients" },
         // opcional:
         // { label: 'Reportes', to: '/app/reports' },
@@ -277,13 +279,13 @@
     // ADMIN / ADMINISTRATIVE (administración)
     return [
       ...base,
-      // { label: "Pacientes", to: "/app/patients" },
-      // { label: "Citas", to: "/app/appointments" },
+      { label: "Pacientes", to: "/app/patients" },
+      { label: "Citas", to: "/app/appointments" },
+      { label: "Historial Clínico", to: "/app/clinical-records" },
       // { label: "Facturación", to: "/app/billing/invoices" },
       // { label: "Inventario", to: "/app/inventory/items" },
       // opcional para ADMIN:
-      ...(r === 'SUPER_ADMIN' ? [{label: 'Empleados', to: '/app/admin/employees'},{ label: 'Usuarios', to: '/app/admin/users' }, { label: 'Áreas y especialidades', to: '/app/admin/areas-specialties' }] : []),
-      // { label: 'Reportes', to: '/app/reports' },
+      ...(r === 'SUPER_ADMIN' ? [{label: 'Empleados', to: '/app/admin/employees'},{ label: 'Usuarios', to: '/app/admin/users' }, { label: 'Áreas y especialidades', to: '/app/admin/areas-specialties' }, {label: 'Permisos', to: '/app/admin/permissions'}, {label: 'Reportes', to: '/app/reports'}, {label: 'Nómina', to: '/app/payroll'}] : []),
     ];
   });
 
@@ -291,6 +293,8 @@
     // Título simple basado en ruta; puedes mejorar con un mapa
     if (route.path.startsWith("/app/dashboard")) return "Dashboard";
     if (route.path.startsWith("/app/patients")) return "Pacientes";
+    if (route.path.startsWith("/app/appointments/patient")) return "Mis Citas";
+    if (route.path.startsWith("/app/appointments/professional")) return "Mi Agenda";
     if (route.path.startsWith("/app/appointments")) return "Citas";
     if (route.path.startsWith("/app/billing")) return "Facturación";
     if (route.path.startsWith("/app/inventory")) return "Inventario";

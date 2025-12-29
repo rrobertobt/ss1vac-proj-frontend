@@ -119,7 +119,7 @@
                 </div>
                 <div class="flex items-center gap-2">
                   <span class="text-xs text-muted-foreground">
-                    {{ user.twoFaEnabled ? "Activado" : "Desactivado" }}
+                    {{ user.two_fa_enabled ? "Activado" : "Desactivado" }}
                   </span>
                   <!-- Si tienes Switch de shadcn-vue, úsalo; si no, quita este componente -->
                   <!-- <Switch :checked="!!user.twoFaEnabled" disabled /> -->
@@ -134,6 +134,7 @@
       <Tabs default-value="details" class="w-full">
         <TabsList class="w-full max-w-xl">
           <TabsTrigger value="details">Detalles</TabsTrigger>
+          <TabsTrigger v-if="isPatient" value="edit">Editar perfil</TabsTrigger>
           <TabsTrigger value="security">Seguridad</TabsTrigger>
         </TabsList>
 
@@ -148,13 +149,13 @@
                 <div class="rounded-lg border bg-muted/30 p-3 space-y-1">
                   <p class="text-xs text-muted-foreground">Rol asignado</p>
                   <p class="font-medium text-foreground">
-                    {{ user.roleLabel ?? "—" }}
+                    {{ user.role_label ?? "—" }}
                   </p>
                 </div>
                 <div class="rounded-lg border bg-muted/30 p-3 space-y-1">
                   <p class="text-xs text-muted-foreground">2FA</p>
                   <p class="font-medium text-foreground">
-                    {{ user.twoFaEnabled ? "Activado" : "Desactivado" }}
+                    {{ user.two_fa_enabled ? "Activado" : "Desactivado" }}
                   </p>
                 </div>
               </div>
@@ -192,7 +193,7 @@
                         <div>
                           <p class="text-muted-foreground">Fecha nacimiento</p>
                           <p class="font-medium text-foreground">
-                            {{ patient.dob ?? "—" }}
+                            {{ user.patient.dob ?? "—" }}
                           </p>
                         </div>
                       </div>
@@ -213,14 +214,8 @@
                         <div>
                           <p class="text-muted-foreground">Nombre</p>
                           <p class="font-medium text-foreground">
-                            {{ user.employee.firstName }}
-                            {{ user.employee.lastName }}
-                          </p>
-                        </div>
-                        <div>
-                          <p class="text-muted-foreground">Tipo</p>
-                          <p class="font-medium text-foreground">
-                            {{ user.employee.employeeType }}
+                            {{ user.employee.first_name }}
+                            {{ user.employee.last_name }}
                           </p>
                         </div>
                         <div>
@@ -243,6 +238,209 @@
                   </CardContent>
                 </Card>
               </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <!-- Editar perfil (solo pacientes) -->
+        <TabsContent v-if="isPatient" value="edit" class="mt-4 space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle class="text-base">Editar mi perfil</CardTitle>
+              <p class="text-sm text-muted-foreground">
+                Actualiza tu información personal. Los campos de nombre no se pueden modificar.
+              </p>
+            </CardHeader>
+            <CardContent>
+              <form @submit.prevent="handleUpdateProfile" class="space-y-4">
+                <!-- Información básica -->
+                <div class="space-y-4">
+                  <h3 class="text-sm font-semibold">Información básica</h3>
+                  
+                  <div class="grid gap-4 md:grid-cols-2">
+                    <div class="space-y-2">
+                      <Label for="edit-username">Nombre de usuario</Label>
+                      <Input
+                        id="edit-username"
+                        v-model="profileForm.username"
+                        type="text"
+                        minlength="3"
+                        maxlength="100"
+                        :disabled="isUpdatingProfile"
+                      />
+                    </div>
+
+                    <div class="space-y-2">
+                      <Label for="edit-phone">Teléfono</Label>
+                      <Input
+                        id="edit-phone"
+                        v-model="profileForm.phone"
+                        type="text"
+                        placeholder="+502 1234-5678"
+                        :disabled="isUpdatingProfile"
+                      />
+                    </div>
+
+                    <div class="space-y-2">
+                      <Label for="edit-email">Email personal</Label>
+                      <Input
+                        id="edit-email"
+                        v-model="profileForm.email"
+                        type="email"
+                        placeholder="tu@email.com"
+                        :disabled="isUpdatingProfile"
+                      />
+                    </div>
+
+                    <div class="space-y-2">
+                      <Label for="edit-gender">Género</Label>
+                      <Select
+                        v-model="profileForm.gender"
+                        :disabled="isUpdatingProfile"
+                      >
+                        <SelectTrigger id="edit-gender">
+                          <SelectValue placeholder="Selecciona género" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="M">Masculino</SelectItem>
+                          <SelectItem value="F">Femenino</SelectItem>
+                          <SelectItem value="O">Otro</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  <div class="space-y-2">
+                    <Label for="edit-address">Dirección</Label>
+                    <Textarea
+                      id="edit-address"
+                      v-model="profileForm.address"
+                      placeholder="Tu dirección completa"
+                      :disabled="isUpdatingProfile"
+                      rows="2"
+                    />
+                  </div>
+                </div>
+
+                <Separator />
+
+                <!-- Información adicional -->
+                <div class="space-y-4">
+                  <h3 class="text-sm font-semibold">Información adicional</h3>
+                  
+                  <div class="grid gap-4 md:grid-cols-2">
+                    <div class="space-y-2">
+                      <Label for="edit-marital">Estado civil</Label>
+                      <Select
+                        v-model="profileForm.marital_status"
+                        :disabled="isUpdatingProfile"
+                      >
+                        <SelectTrigger id="edit-marital">
+                          <SelectValue placeholder="Selecciona estado civil" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="SINGLE">Soltero/a</SelectItem>
+                          <SelectItem value="MARRIED">Casado/a</SelectItem>
+                          <SelectItem value="DIVORCED">Divorciado/a</SelectItem>
+                          <SelectItem value="WIDOWED">Viudo/a</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div class="space-y-2">
+                      <Label for="edit-occupation">Ocupación</Label>
+                      <Input
+                        id="edit-occupation"
+                        v-model="profileForm.occupation"
+                        type="text"
+                        placeholder="Ej: Ingeniero, Estudiante"
+                        :disabled="isUpdatingProfile"
+                      />
+                    </div>
+
+                    <div class="space-y-2">
+                      <Label for="edit-education">Nivel de educación</Label>
+                      <Select
+                        v-model="profileForm.education_level"
+                        :disabled="isUpdatingProfile"
+                      >
+                        <SelectTrigger id="edit-education">
+                          <SelectValue placeholder="Selecciona nivel" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="PRIMARY">Primaria</SelectItem>
+                          <SelectItem value="SECONDARY">Secundaria</SelectItem>
+                          <SelectItem value="HIGH_SCHOOL">Bachillerato</SelectItem>
+                          <SelectItem value="UNIVERSITY">Universidad</SelectItem>
+                          <SelectItem value="POSTGRADUATE">Posgrado</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </div>
+
+                <Separator />
+
+                <!-- Contacto de emergencia -->
+                <div class="space-y-4">
+                  <h3 class="text-sm font-semibold">Contacto de emergencia</h3>
+                  
+                  <div class="grid gap-4 md:grid-cols-3">
+                    <div class="space-y-2">
+                      <Label for="edit-emergency-name">Nombre completo</Label>
+                      <Input
+                        id="edit-emergency-name"
+                        v-model="profileForm.emergency_contact_name"
+                        type="text"
+                        placeholder="Nombre del contacto"
+                        :disabled="isUpdatingProfile"
+                      />
+                    </div>
+
+                    <div class="space-y-2">
+                      <Label for="edit-emergency-relationship">Relación</Label>
+                      <Input
+                        id="edit-emergency-relationship"
+                        v-model="profileForm.emergency_contact_relationship"
+                        type="text"
+                        placeholder="Ej: Madre, Esposo/a"
+                        :disabled="isUpdatingProfile"
+                      />
+                    </div>
+
+                    <div class="space-y-2">
+                      <Label for="edit-emergency-phone">Teléfono</Label>
+                      <Input
+                        id="edit-emergency-phone"
+                        v-model="profileForm.emergency_contact_phone"
+                        type="text"
+                        placeholder="+502 9876-5432"
+                        :disabled="isUpdatingProfile"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <Separator />
+
+                <!-- Botones de acción -->
+                <div class="flex justify-end gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    @click="resetProfileForm"
+                    :disabled="isUpdatingProfile"
+                  >
+                    Cancelar
+                  </Button>
+                  <Button
+                    type="submit"
+                    :disabled="isUpdatingProfile"
+                  >
+                    {{ isUpdatingProfile ? 'Actualizando...' : 'Guardar cambios' }}
+                  </Button>
+                </div>
+              </form>
             </CardContent>
           </Card>
         </TabsContent>
@@ -326,7 +524,7 @@
                 <p class="text-xs text-muted-foreground">
                   Tu cuenta actualmente tiene 2FA:
                   <span class="font-medium text-foreground">{{
-                    user.twoFaEnabled ? "activado" : "desactivado"
+                    user.two_fa_enabled ? "activado" : "desactivado"
                   }}</span
                   >.
                 </p>
@@ -388,7 +586,7 @@
                 <!-- Botones de acción -->
                 <div v-else class="flex gap-2 pt-2">
                   <Button
-                    v-if="!user.twoFaEnabled"
+                    v-if="!user.two_fa_enabled"
                     variant="default"
                     @click="handleEnable2fa"
                     :disabled="request2faMutation.isLoading.value"
@@ -427,7 +625,7 @@
     layout: "default",
   });
 
-  import { computed, ref, reactive } from "vue";
+  import { computed, ref, reactive, watchEffect } from "vue";
   import { useSessionStore } from "@/stores/session"; // ajusta path si tu store está en otro lugar
 
   import { Button } from "@/components/ui/button";
@@ -444,6 +642,15 @@
     TabsContent,
   } from "@/components/ui/tabs";
   import { Input } from "@/components/ui/input";
+  import { Label } from "@/components/ui/label";
+  import { Textarea } from "@/components/ui/textarea";
+  import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+  } from "@/components/ui/select";
   import { Separator } from "@/components/ui/separator";
   import { toast } from "vue-sonner";
   import { useMutation } from "@pinia/colada";
@@ -468,18 +675,103 @@
     return (a + b).toUpperCase();
   });
 
-  const roleNameText = computed(() => user.value?.roleName ?? "—");
+  const roleNameText = computed(() => user.value?.role_label ?? "—");
   const roleLabelText = computed(
-    () => user.value?.roleLabel ?? user.value?.roleName ?? "Usuario",
+    () => user.value?.role_label ?? user.value?.role_name ?? "Usuario",
   );
 
-  function pretty(val: unknown) {
+  const isPatient = computed(() => user.value?.role_name === 'PATIENT');
+
+  // Estado para edición de perfil (pacientes)
+  const profileForm = reactive({
+    username: '',
+    phone: '',
+    email: '',
+    address: '',
+    gender: '',
+    marital_status: '',
+    occupation: '',
+    education_level: '',
+    emergency_contact_name: '',
+    emergency_contact_relationship: '',
+    emergency_contact_phone: '',
+  });
+
+  const isUpdatingProfile = ref(false);
+
+  function initializeProfileForm() {
+    if (!user.value?.patient) return;
+    
+    profileForm.username = user.value.username || '';
+    profileForm.phone = user.value.patient.phone || '';
+    profileForm.email = user.value.patient.email || '';
+    profileForm.address = user.value.patient.address || '';
+    profileForm.gender = user.value.patient.gender || '';
+    profileForm.marital_status = user.value.patient.marital_status || '';
+    profileForm.occupation = user.value.patient.occupation || '';
+    profileForm.education_level = user.value.patient.education_level || '';
+    profileForm.emergency_contact_name = user.value.patient.emergency_contact_name || '';
+    profileForm.emergency_contact_relationship = user.value.patient.emergency_contact_relationship || '';
+    profileForm.emergency_contact_phone = user.value.patient.emergency_contact_phone || '';
+  }
+
+  function resetProfileForm() {
+    initializeProfileForm();
+  }
+
+  async function handleUpdateProfile() {
+    if (!user.value?.patient) {
+      toast.error('Solo los pacientes pueden actualizar su perfil');
+      return;
+    }
+
+    isUpdatingProfile.value = true;
     try {
-      return JSON.stringify(val, null, 2);
-    } catch {
-      return String(val);
+      // Solo enviar campos que no estén vacíos
+      const payload: any = {};
+      
+      if (profileForm.username !== user.value.username) {
+        payload.username = profileForm.username;
+      }
+      if (profileForm.phone) payload.phone = profileForm.phone;
+      if (profileForm.email) payload.email = profileForm.email;
+      if (profileForm.address) payload.address = profileForm.address;
+      if (profileForm.gender) payload.gender = profileForm.gender;
+      if (profileForm.marital_status) payload.marital_status = profileForm.marital_status;
+      if (profileForm.occupation) payload.occupation = profileForm.occupation;
+      if (profileForm.education_level) payload.education_level = profileForm.education_level;
+      if (profileForm.emergency_contact_name) payload.emergency_contact_name = profileForm.emergency_contact_name;
+      if (profileForm.emergency_contact_relationship) payload.emergency_contact_relationship = profileForm.emergency_contact_relationship;
+      if (profileForm.emergency_contact_phone) payload.emergency_contact_phone = profileForm.emergency_contact_phone;
+
+      await profileApi.updateProfile(payload);
+
+      toast.success('Perfil actualizado exitosamente');
+      
+      // Recargar datos del usuario
+      await sessionStore.recoverSession();
+      
+      // Re-inicializar el formulario con los nuevos datos
+      initializeProfileForm();
+    } catch (error: any) {
+      console.error('Error al actualizar perfil:', error);
+
+      const errorMessage =
+        error?.data?.message ||
+        error?.message ||
+        'Error al actualizar el perfil';
+      toast.error(errorMessage);
+    } finally {
+      isUpdatingProfile.value = false;
     }
   }
+
+  // Inicializar el formulario cuando se carga el componente
+  watchEffect(() => {
+    if (user.value?.patient) {
+      initializeProfileForm();
+    }
+  });
 
   // Estado para cambio de contraseña
   const passwordForm = reactive({

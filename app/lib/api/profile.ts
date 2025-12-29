@@ -10,7 +10,27 @@ export interface TwoFaVerifyPayload {
   code: string
 }
 
+export interface UpdateProfilePayload {
+  username?: string
+  phone?: string
+  email?: string
+  address?: string
+  gender?: string
+  marital_status?: string
+  occupation?: string
+  education_level?: string
+  emergency_contact_name?: string
+  emergency_contact_relationship?: string
+  emergency_contact_phone?: string
+}
+
 export const profileApi = {
+  // Actualizar perfil
+  updateProfile: (payload: UpdateProfilePayload) =>
+    $api('/auth/me', {
+      method: 'PATCH',
+      body: payload,
+    }),
   // Cambiar contraseña
   changePassword: (payload: ChangePasswordPayload) =>
     $api('/auth/change-password', {
