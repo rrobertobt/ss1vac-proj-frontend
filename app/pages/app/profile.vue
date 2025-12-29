@@ -119,7 +119,7 @@
                 </div>
                 <div class="flex items-center gap-2">
                   <span class="text-xs text-muted-foreground">
-                    {{ user.twoFaEnabled ? "Activado" : "Desactivado" }}
+                    {{ user.two_fa_enabled ? "Activado" : "Desactivado" }}
                   </span>
                   <!-- Si tienes Switch de shadcn-vue, úsalo; si no, quita este componente -->
                   <!-- <Switch :checked="!!user.twoFaEnabled" disabled /> -->
@@ -148,13 +148,13 @@
                 <div class="rounded-lg border bg-muted/30 p-3 space-y-1">
                   <p class="text-xs text-muted-foreground">Rol asignado</p>
                   <p class="font-medium text-foreground">
-                    {{ user.roleLabel ?? "—" }}
+                    {{ user.role_label ?? "—" }}
                   </p>
                 </div>
                 <div class="rounded-lg border bg-muted/30 p-3 space-y-1">
                   <p class="text-xs text-muted-foreground">2FA</p>
                   <p class="font-medium text-foreground">
-                    {{ user.twoFaEnabled ? "Activado" : "Desactivado" }}
+                    {{ user.two_fa_enabled ? "Activado" : "Desactivado" }}
                   </p>
                 </div>
               </div>
@@ -192,7 +192,7 @@
                         <div>
                           <p class="text-muted-foreground">Fecha nacimiento</p>
                           <p class="font-medium text-foreground">
-                            {{ patient.dob ?? "—" }}
+                            {{ user.patient.dob ?? "—" }}
                           </p>
                         </div>
                       </div>
@@ -213,14 +213,8 @@
                         <div>
                           <p class="text-muted-foreground">Nombre</p>
                           <p class="font-medium text-foreground">
-                            {{ user.employee.firstName }}
-                            {{ user.employee.lastName }}
-                          </p>
-                        </div>
-                        <div>
-                          <p class="text-muted-foreground">Tipo</p>
-                          <p class="font-medium text-foreground">
-                            {{ user.employee.employeeType }}
+                            {{ user.employee.first_name }}
+                            {{ user.employee.last_name }}
                           </p>
                         </div>
                         <div>
@@ -326,7 +320,7 @@
                 <p class="text-xs text-muted-foreground">
                   Tu cuenta actualmente tiene 2FA:
                   <span class="font-medium text-foreground">{{
-                    user.twoFaEnabled ? "activado" : "desactivado"
+                    user.two_fa_enabled ? "activado" : "desactivado"
                   }}</span
                   >.
                 </p>
@@ -388,7 +382,7 @@
                 <!-- Botones de acción -->
                 <div v-else class="flex gap-2 pt-2">
                   <Button
-                    v-if="!user.twoFaEnabled"
+                    v-if="!user.two_fa_enabled"
                     variant="default"
                     @click="handleEnable2fa"
                     :disabled="request2faMutation.isLoading.value"
@@ -468,18 +462,10 @@
     return (a + b).toUpperCase();
   });
 
-  const roleNameText = computed(() => user.value?.roleName ?? "—");
+  const roleNameText = computed(() => user.value?.role_label ?? "—");
   const roleLabelText = computed(
-    () => user.value?.roleLabel ?? user.value?.roleName ?? "Usuario",
+    () => user.value?.role_label ?? user.value?.role_name ?? "Usuario",
   );
-
-  function pretty(val: unknown) {
-    try {
-      return JSON.stringify(val, null, 2);
-    } catch {
-      return String(val);
-    }
-  }
 
   // Estado para cambio de contraseña
   const passwordForm = reactive({

@@ -8,7 +8,7 @@
       </NuxtLink>
     </Button>
     <Button as-child class="ml-4">
-      <NuxtLink to="/app/admin/patients/new">
+      <NuxtLink to="/app/patients/new">
         Crear Paciente
         <Icon name="lucide:user-plus" class="inline" />
       </NuxtLink>

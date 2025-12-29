@@ -277,12 +277,12 @@
     // ADMIN / ADMINISTRATIVE (administración)
     return [
       ...base,
-      // { label: "Pacientes", to: "/app/patients" },
+      { label: "Pacientes", to: "/app/patients" },
       // { label: "Citas", to: "/app/appointments" },
       // { label: "Facturación", to: "/app/billing/invoices" },
       // { label: "Inventario", to: "/app/inventory/items" },
       // opcional para ADMIN:
-      ...(r === 'SUPER_ADMIN' ? [{label: 'Empleados', to: '/app/admin/employees'},{ label: 'Usuarios', to: '/app/admin/users' }, { label: 'Áreas y especialidades', to: '/app/admin/areas-specialties' }] : []),
+      ...(r === 'SUPER_ADMIN' ? [{label: 'Empleados', to: '/app/admin/employees'},{ label: 'Usuarios', to: '/app/admin/users' }, { label: 'Áreas y especialidades', to: '/app/admin/areas-specialties' }, {label: 'Permisos', to: '/app/admin/permissions'}] : []),
       // { label: 'Reportes', to: '/app/reports' },
     ];
   });
