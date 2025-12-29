@@ -57,6 +57,12 @@
         <CardContent>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
+              <Label class="text-muted-foreground">ID de paciente</Label>
+              <p class="text-base font-medium">
+                {{ appointment.patient?.id }}
+              </p>
+            </div>
+            <div>
               <Label class="text-muted-foreground">Nombre Completo</Label>
               <p class="text-base font-medium">
                 {{ appointment.patient?.first_name }}

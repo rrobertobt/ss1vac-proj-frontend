@@ -258,6 +258,7 @@
       return [
         ...base,
         { label: "Mi Agenda", to: "/app/appointments/professional" },
+        { label: "Historial Clínico", to: "/app/clinical-records" },
         // { label: "Pacientes", to: "/app/patients" },
         // opcional:
         // { label: 'Reportes', to: '/app/reports' },
@@ -279,6 +280,7 @@
       ...base,
       { label: "Pacientes", to: "/app/patients" },
       { label: "Citas", to: "/app/appointments" },
+      { label: "Historial Clínico", to: "/app/clinical-records" },
       // { label: "Facturación", to: "/app/billing/invoices" },
       // { label: "Inventario", to: "/app/inventory/items" },
       // opcional para ADMIN:
